@@ -1,4 +1,4 @@
-name: chart-java pipeline
+name: chart-wiremock pipeline
 trigger:
   branches:
     include:
@@ -26,8 +26,8 @@ jobs:
   steps:
   - template: steps/charts/validate.yaml@cnp-azuredevops-libraries
     parameters:
-      chartName: java
-      chartReleaseName: chart-java-ci-test
+      chartName: wiremock
+      chartReleaseName: chart-wiremock-ci-test
       chartNamespace: chart-tests
       helmInstallTimeout: "500"
 
@@ -44,6 +44,6 @@ jobs:
   steps:
   - template: steps/charts/release.yaml@cnp-azuredevops-libraries
     parameters:
-      chartName: java
-      chartReleaseName: chart-java
+      chartName: wiremock
+      chartReleaseName: chart-wiremock
       chartNamespace: chart-tests
