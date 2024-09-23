@@ -7,7 +7,7 @@ This chart is intended to be used for mocking components which are not available
 in chart.yaml
 ```yaml
   - name: wiremock
-    version: 0..0.3
+    version: 0.0.3
     repository: 'https://hmctspublic.azurecr.io/helm/v1/repo/'
     condition: wiremock.enabled
 ```
