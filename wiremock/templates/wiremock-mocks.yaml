@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.releaseNameOverride }}-mocks
+  name: {{ .Values.releaseNameOverride }}mocks
 data:
   liveness-mock.json: |
     {
