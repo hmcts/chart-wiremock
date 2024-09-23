@@ -1,6 +1,5 @@
 image: "wiremock/wiremock"
 applicationPort: 8080
-imagePullPolicy: Always
 releaseNameOverride : {{ .Release.Name }}wiremock
 volumes:
   - name: wiremockmocks
