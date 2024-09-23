@@ -3,7 +3,6 @@ applicationPort: 8080
 imagePullPolicy: Always
 replicas: 2
 useInterpodAntiAffinity: true
-ingressHost: "{{.Release.Name}}.service.core-compute-preview.internal"
 releaseNameOverride : {{ .Release.Name }}wiremock
 volumes:
   - name: wiremockmocks
@@ -13,7 +12,6 @@ volumeMounts:
   - name: wiremockmocks
     mountPath: /home/wiremock/mappings
     subPath: mappings
-additionalIngressHosts: ["ci-01.{{.Values.global.environment}}.platform.hmcts.net"]
 configmap:
   VAR_A: VALUE_A
   VAR_B: VALUE_B
