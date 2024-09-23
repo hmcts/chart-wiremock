@@ -43,3 +43,13 @@ pdb:
   maxUnavailable: 50%
 
 useWorkloadIdentity: true
+
+autoscaling:
+  enabled: true
+  cpu:
+    enabled: true
+    averageUtilization: 80
+  memory:
+    enabled: true
+    averageUtilization: 80
+useWorkloadIdentity: true
