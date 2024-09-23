@@ -4,6 +4,15 @@ imagePullPolicy: Always
 replicas: 2
 useInterpodAntiAffinity: true
 ingressHost: "{{.Release.Name}}.service.core-compute-preview.internal"
+releaseNameOverride : ${SERVICE_NAME}wiremock
+volumes:
+  - name: wiremockmocks
+    configMap:
+      name: ${SERVICE_NAME}wiremockmocks
+volumeMounts:
+  - name: wiremockmocks
+    mountPath: /home/wiremock/mappings
+    subPath: mappings
 additionalIngressHosts: ["ci-01.{{.Values.global.environment}}.platform.hmcts.net"]
 configmap:
   VAR_A: VALUE_A
