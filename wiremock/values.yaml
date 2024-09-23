@@ -1,10 +1,10 @@
 applicationPort: 8080
 imagePullPolicy: IfNotPresent
-releaseNameOverride : "{{ .Release.Name }}-wiremock"
+releaseNameOverride : {{.Release.Name}}-wiremock
 volumes:
   - name: wiremock-mocks
     configMap:
-      name: "{{ .Release.Name }}-wiremock-mocks"
+      name: {{.Release.Name}}-wiremock-mocks
 volumeMounts:
   - name: wiremock-mocks
     mountPath: /home/wiremock/mappings
