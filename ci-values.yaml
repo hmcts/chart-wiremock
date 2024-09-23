@@ -1,11 +1,6 @@
 image: "wiremock/wiremock"
 applicationPort: 8080
 imagePullPolicy: Always
-releaseNameOverride : ${SERVICE_NAME}-wiremock
-volumes:
-  - name: wiremock-mocks
-    configMap:
-      name: ${SERVICE_NAME}-wiremock-mocks
 volumeMounts:
   - name: wiremock-mocks
     mountPath: /home/wiremock/mappings
