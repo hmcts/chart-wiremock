@@ -1,10 +1,6 @@
 image: "wiremock/wiremock"
 applicationPort: 8080
 imagePullPolicy: Always
-volumeMounts:
-  - name: wiremock-mocks
-    mountPath: /home/wiremock/mappings
-    subPath: mappings
 replicas: 2
 useInterpodAntiAffinity: true
 ingressHost: "{{.Release.Name}}.service.core-compute-preview.internal"
