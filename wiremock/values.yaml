@@ -28,7 +28,6 @@ startupFailureThreshold: 20
 saEnabled: true
 spotInstances:
   enabled: false
-
 ingressClass: traefik
 disableTraefikTls: true
 # WARNING: ingressSessionAffinity is a temporary option.
