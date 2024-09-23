@@ -4,11 +4,11 @@ imagePullPolicy: Always
 replicas: 2
 useInterpodAntiAffinity: true
 ingressHost: "{{.Release.Name}}.service.core-compute-preview.internal"
-releaseNameOverride : ${SERVICE_NAME}wiremock
+releaseNameOverride : {{ .Release.Name }}wiremock
 volumes:
   - name: wiremockmocks
     configMap:
-      name: ${SERVICE_NAME}wiremockmocks
+      name: {{ .Release.Name }}wiremockmocks
 volumeMounts:
   - name: wiremockmocks
     mountPath: /home/wiremock/mappings
