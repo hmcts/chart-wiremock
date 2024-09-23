@@ -41,6 +41,17 @@ dnsConfig:
 pdb:
   enabled: true
   maxUnavailable: 50%
+global:
+  enableKeyVaults: false
+  devMode: false
+  smoketestscron:
+    enabled: true
+  functionaltestscron:
+    enabled: true
+prometheus:
+  enabled: false
+  path: /prometheus
+
 
 useWorkloadIdentity: true
 
