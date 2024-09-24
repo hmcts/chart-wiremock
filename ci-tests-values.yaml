@@ -1,0 +1,5 @@
+aadIdentityName: someId
+
+testsConfig:
+  environment:
+    TEST_URL: http://chart-wiremock
