@@ -2,4 +2,4 @@ aadIdentityName: someId
 
 testsConfig:
   environment:
-    TEST_URL: http://chart-wiremock-mocks
+    TEST_URL: http://chart-wiremock
