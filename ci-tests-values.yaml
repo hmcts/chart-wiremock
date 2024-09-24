@@ -1,0 +1,7 @@
+aadIdentityName: someId
+
+testsConfig:
+  image: "wiremock/wiremock"
+  applicationPort: 8080
+  imagePullPolicy: Always
+  replicas: 2
