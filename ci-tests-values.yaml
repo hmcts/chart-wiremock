@@ -1,15 +1,5 @@
 aadIdentityName: someId
 
 testsConfig:
-  image: "wiremock/wiremock"
-  applicationPort: 8080
-  imagePullPolicy: Always
-  replicas: 2
-
-smoketests:
-  image: "wiremock/wiremock"
-  enabled: true
-
-functionaltests:
-  image: "wiremock/wiremock"
-  enabled: true
+  environment:
+    TEST_URL: http://chart-wiremock
