@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "hmcts.wiremock.releaseName" . }}
+  name: {{ template "hmcts.wiremock.releaseName" . }}-wm
 data:
   liveness-mock.json: |
     {
