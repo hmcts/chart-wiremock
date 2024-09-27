@@ -4,7 +4,7 @@ releaseNameOverride : chart-wiremock
 volumes:
   - name: wiremock-mocks
     configMap:
-      name: {{.Release.Name}}-chart-wiremock
+      name: {{ template "hmcts.wiremock.releaseName" . }}-chart-wiremock
 volumeMounts:
   - name: wiremock-mocks
     mountPath: /home/wiremock/mappings
