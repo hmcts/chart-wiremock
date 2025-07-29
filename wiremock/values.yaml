@@ -4,6 +4,8 @@ releaseNameOverride : chart-wiremock
 replicas: 1
 registerAdditionalDns:
   enabled: false
+volumes: []
+volumeMounts: []
 memoryRequests: '1024Mi'
 cpuRequests: '250m'
 memoryLimits: '2048Mi'
