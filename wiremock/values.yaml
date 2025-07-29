@@ -1,11 +1,17 @@
 applicationPort: 8080
 imagePullPolicy: IfNotPresent
 releaseNameOverride : chart-wiremock
+volumes:
+  - name: wiremock-mocks
+    configMap:
+      name: chart-wiremock-wm
+volumeMounts:
+  - name: wiremock-mocks
+    mountPath: /home/wiremock/mappings
+    subPath: mappings
 replicas: 1
 registerAdditionalDns:
   enabled: false
-volumes: []
-volumeMounts: []
 memoryRequests: '1024Mi'
 cpuRequests: '250m'
 memoryLimits: '2048Mi'
@@ -34,7 +40,7 @@ spotInstances:
 useInterpodAntiAffinity: true
 ingressClass: traefik
 disableTraefikTls: true
-# WARNING: ingressSessionAffinity is a temporary option.
+# WARNING: ingressSessionAffinity is a temporary option
 # This is subject to removal without notice. Do NOT use for any reason!
 ingressSessionAffinity:
   enabled: false
