@@ -65,7 +65,7 @@ jobs:
   # Debug step to test helm template
   - script: |
       echo "=== HELM TEMPLATE TEST ==="
-      helm template chart-wiremock-ci-test ./wiremock --namespace chart-tests --debug
+      helm template chart-wiremock-ci-test wiremock --namespace chart-tests --debug
     displayName: 'Debug: Helm template test'
     
   # Original validation step
