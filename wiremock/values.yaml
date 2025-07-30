@@ -1,96 +1,85 @@
-applicationPort: 8080
-imagePullPolicy: IfNotPresent
+# Production values for wiremock chart
 image: "wiremock/wiremock"
-releaseNameOverride : chart-wiremock
+applicationPort: 8080
+imagePullPolicy: Always
+replicas: 2
 volumesEnabled: false
-replicas: 1
-registerAdditionalDns:
-  enabled: false
-memoryRequests: '1024Mi'
-cpuRequests: '250m'
-memoryLimits: '2048Mi'
-cpuLimits: '1500m'
-devmemoryRequests: '512Mi'
-devcpuRequests: '250m'
-devmemoryLimits: '1024Mi'
-devcpuLimits: '2500m'
-readinessPath: '/health/readiness'
-readinessDelay: 0
-readinessTimeout: 3
-readinessPeriod: 15
-livenessPath: '/health/liveness'
-livenessDelay: 0
-livenessTimeout: 3
-livenessPeriod: 15
-livenessFailureThreshold: 3
-startupPath: '/health/liveness'
-startupDelay: 10
-startupTimeout: 3
-startupPeriod: 10
-startupFailureThreshold: 20
-saEnabled: true
-spotInstances:
-  enabled: false
-useInterpodAntiAffinity: true
-ingressClass: traefik
-disableTraefikTls: true
-# WARNING: ingressSessionAffinity is a temporary option
-# This is subject to removal without notice. Do NOT use for any reason!
-ingressSessionAffinity:
-  enabled: false
-  sessionCookieName: sticky
-dnsConfig:
-  ndots: "3"
-  singleRequestTcp: false
-pdb:
-  enabled: true
-  maxUnavailable: 50%
 
+# Service configuration
+service:
+  type: ClusterIP  # or LoadBalancer for cloud environments
+  port: 80
+  targetPort: 8080
+  sessionAffinity: None
+
+# Health check configuration - using Wiremock's built-in endpoints
+readinessPath: '/__admin/health'
+readinessDelay: 10
+readinessTimeout: 5
+readinessPeriod: 10
+livenessPath: '/__admin/health'
+livenessDelay: 30
+livenessTimeout: 5
+livenessPeriod: 10
+livenessFailureThreshold: 3
+startupPath: '/__admin/health'
+startupDelay: 30
+startupTimeout: 5
+startupPeriod: 10
+startupFailureThreshold: 10
+
+# Resource configuration
+memoryRequests: '1024Mi'
+cpuRequests: '500m'
+memoryLimits: '2048Mi'
+cpuLimits: '1000m'
+
+
+
+# Service configuration
+saEnabled: true
+useInterpodAntiAffinity: true
+ingressClass: nginx  # or your preferred ingress class
+disableTraefikTls: false  # Enable TLS in production
+
+# Global configuration
 global:
-  enableKeyVaults: false
+  enableKeyVaults: true
   devMode: false
-  smoketestscron:
-    enabled: true
-  functionaltestscron:
-    enabled: true
+  environment: production
+  tenantId: "your-tenant-id"  # Replace with your actual tenant ID
+
+# Disable features not needed in production
 prometheus:
   enabled: false
-  path: /prometheus
 
-testsConfig:
-  memoryRequests: '256Mi'
-  cpuRequests: '100m'
-  memoryLimits: '2048Mi'
-  cpuLimits: '1000m'
-  serviceAccountName: tests-service-account
+# Disable tests in production
 smoketests:
-  image: hmctspublic.azurecr.io/spring-boot/template
   enabled: false
 functionaltests:
-  image: hmctspublic.azurecr.io/spring-boot/template
   enabled: false
 smoketestscron:
-  image: hmctspublic.azurecr.io/spring-boot/template
   enabled: false
-  schedule: "20 0/1 * * *"
 functionaltestscron:
-  image: hmctspublic.azurecr.io/spring-boot/template
   enabled: false
-  schedule: "30 0/6 * * *"
 
-# HPA - example
-# autoscaling:
-#  enabled: true
-#  maxReplicas: 5
-#  minReplicas: 2
-#  targetCPUUtilizationPercentage: 80
-
+# Autoscaling configuration
 autoscaling:
   enabled: true
   cpu:
     enabled: true
-    averageUtilization: 80
+    averageUtilization: 70
   memory:
     enabled: true
-    averageUtilization: 80
+    averageUtilization: 70
+
+# Security and networking
 useWorkloadIdentity: true
+dnsConfig:
+  ndots: "3"
+  singleRequestTcp: false
+
+# PDB configuration
+pdb:
+  enabled: true
+  maxUnavailable: 25% 
