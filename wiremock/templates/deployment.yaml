@@ -1,1 +1,47 @@
+{{- if .Values.volumesEnabled }}
 {{- template "hmcts.deployment.v5.tpl" . -}}
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "hmcts.wiremock.releaseName" . }}
+  labels:
+    app: {{ template "hmcts.wiremock.releaseName" . }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "hmcts.wiremock.releaseName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "hmcts.wiremock.releaseName" . }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.image }}
+        ports:
+        - containerPort: {{ .Values.applicationPort }}
+        resources:
+          requests:
+            memory: {{ .Values.memoryRequests }}
+            cpu: {{ .Values.cpuRequests }}
+          limits:
+            memory: {{ .Values.memoryLimits }}
+            cpu: {{ .Values.cpuLimits }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.livenessPath }}
+            port: {{ .Values.applicationPort }}
+          initialDelaySeconds: {{ .Values.livenessDelay }}
+          timeoutSeconds: {{ .Values.livenessTimeout }}
+          periodSeconds: {{ .Values.livenessPeriod }}
+          failureThreshold: {{ .Values.livenessFailureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.readinessPath }}
+            port: {{ .Values.applicationPort }}
+          initialDelaySeconds: {{ .Values.readinessDelay }}
+          timeoutSeconds: {{ .Values.readinessTimeout }}
+          periodSeconds: {{ .Values.readinessPeriod }}
+{{- end }}
