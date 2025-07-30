@@ -1,1 +1,125 @@
+{{- if .Values.volumesEnabled }}
 {{- template "hmcts.deployment.v5.tpl" . -}}
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "hmcts.wiremock.releaseName" . }}
+  labels:
+    app: {{ template "hmcts.wiremock.releaseName" . }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "hmcts.wiremock.releaseName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "hmcts.wiremock.releaseName" . }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.image }}
+        ports:
+        - containerPort: {{ .Values.applicationPort }}
+        resources:
+          requests:
+            memory: {{ .Values.memoryRequests }}
+            cpu: {{ .Values.cpuRequests }}
+          limits:
+            memory: {{ .Values.memoryLimits }}
+            cpu: {{ .Values.cpuLimits }}
+        {{- if .Values.autoCreateMocks }}
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - |
+                # Wait for WireMock to be ready
+                until curl -s http://localhost:{{ .Values.applicationPort }}/__admin/mappings > /dev/null; do
+                  sleep 1
+                done
+                
+                # Create liveness mock
+                curl -X POST http://localhost:{{ .Values.applicationPort }}/__admin/mappings \
+                  -H "Content-Type: application/json" \
+                  -d '{
+                    "request": {
+                      "method": "GET",
+                      "url": "/health/liveness"
+                    },
+                    "response": {
+                      "status": 200
+                    }
+                  }'
+                
+                # Create readiness mock
+                curl -X POST http://localhost:{{ .Values.applicationPort }}/__admin/mappings \
+                  -H "Content-Type: application/json" \
+                  -d '{
+                    "request": {
+                      "method": "GET",
+                      "url": "/health/readiness"
+                    },
+                    "response": {
+                      "status": 200
+                    }
+                  }'
+                
+                # Create general health mock
+                curl -X POST http://localhost:{{ .Values.applicationPort }}/__admin/mappings \
+                  -H "Content-Type: application/json" \
+                  -d '{
+                    "request": {
+                      "method": "GET",
+                      "url": "/health"
+                    },
+                    "response": {
+                      "status": 200
+                    }
+                  }'
+                
+                echo "Mock endpoints created successfully"
+        # Use HTTP probes when mocks are auto-created
+        startupProbe:
+          httpGet:
+            path: /__admin/mappings
+            port: {{ .Values.applicationPort }}
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
+          periodSeconds: 5
+          failureThreshold: 10
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.livenessPath }}
+            port: {{ .Values.applicationPort }}
+          initialDelaySeconds: {{ .Values.livenessDelay }}
+          timeoutSeconds: {{ .Values.livenessTimeout }}
+          periodSeconds: {{ .Values.livenessPeriod }}
+          failureThreshold: {{ .Values.livenessFailureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.readinessPath }}
+            port: {{ .Values.applicationPort }}
+          initialDelaySeconds: {{ .Values.readinessDelay }}
+          timeoutSeconds: {{ .Values.readinessTimeout }}
+          periodSeconds: {{ .Values.readinessPeriod }}
+        {{- else }}
+        # Use TCP probes when no mocks are available
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.applicationPort }}
+          initialDelaySeconds: {{ .Values.livenessDelay }}
+          timeoutSeconds: {{ .Values.livenessTimeout }}
+          periodSeconds: {{ .Values.livenessPeriod }}
+          failureThreshold: {{ .Values.livenessFailureThreshold }}
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.applicationPort }}
+          initialDelaySeconds: {{ .Values.readinessDelay }}
+          timeoutSeconds: {{ .Values.readinessTimeout }}
+          periodSeconds: {{ .Values.readinessPeriod }}
+        {{- end }}
+{{- end }}

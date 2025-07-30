@@ -1,14 +1,6 @@
 applicationPort: 8080
 imagePullPolicy: IfNotPresent
 releaseNameOverride : chart-wiremock
-volumes:
-  - name: wiremock-mocks
-    configMap:
-      name: chart-wiremock-wm
-volumeMounts:
-  - name: wiremock-mocks
-    mountPath: /home/wiremock/mappings
-    subPath: mappings
 replicas: 1
 registerAdditionalDns:
   enabled: false
@@ -100,3 +92,6 @@ autoscaling:
     enabled: true
     averageUtilization: 80
 useWorkloadIdentity: true
+
+# Auto-create mock endpoints (no ConfigMaps needed)
+autoCreateMocks: true
