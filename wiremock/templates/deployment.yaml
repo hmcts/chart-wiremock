@@ -1,5 +1,5 @@
 {{- if .Values.volumesEnabled }}
-{{- template "hmcts.deployment.v5.tpl" . }}
+{{- template "hmcts.deployment.v5.tpl" . -}}
 {{- else }}
 apiVersion: apps/v1
 kind: Deployment
@@ -7,7 +7,6 @@ metadata:
   name: {{ template "hmcts.wiremock.releaseName" . }}
   labels:
     app: {{ template "hmcts.wiremock.releaseName" . }}
-    {{- include "hmcts.wiremock.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   selector:
@@ -17,18 +16,12 @@ spec:
     metadata:
       labels:
         app: {{ template "hmcts.wiremock.releaseName" . }}
-        {{- include "hmcts.wiremock.labels" . | nindent 8 }}
     spec:
-      {{- if .Values.saEnabled }}
-      serviceAccountName: {{ template "hmcts.wiremock.releaseName" . }}
-      {{- end }}
       containers:
       - name: {{ .Chart.Name }}
         image: {{ .Values.image }}
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
         ports:
         - containerPort: {{ .Values.applicationPort }}
-          name: http
         resources:
           requests:
             memory: {{ .Values.memoryRequests }}
@@ -36,10 +29,10 @@ spec:
           limits:
             memory: {{ .Values.memoryLimits }}
             cpu: {{ .Values.cpuLimits }}
-        # Health checks using Wiremock's built-in endpoints
+        # Use Wiremock's built-in admin health endpoint for both probes
         livenessProbe:
           httpGet:
-            path: {{ .Values.livenessPath }}
+            path: /__admin/health
             port: {{ .Values.applicationPort }}
           initialDelaySeconds: {{ .Values.livenessDelay }}
           timeoutSeconds: {{ .Values.livenessTimeout }}
@@ -47,55 +40,9 @@ spec:
           failureThreshold: {{ .Values.livenessFailureThreshold }}
         readinessProbe:
           httpGet:
-            path: {{ .Values.readinessPath }}
+            path: /__admin/health
             port: {{ .Values.applicationPort }}
           initialDelaySeconds: {{ .Values.readinessDelay }}
           timeoutSeconds: {{ .Values.readinessTimeout }}
           periodSeconds: {{ .Values.readinessPeriod }}
-        startupProbe:
-          httpGet:
-            path: {{ .Values.startupPath }}
-            port: {{ .Values.applicationPort }}
-          initialDelaySeconds: {{ .Values.startupDelay }}
-          timeoutSeconds: {{ .Values.startupTimeout }}
-          periodSeconds: {{ .Values.startupPeriod }}
-          failureThreshold: {{ .Values.startupFailureThreshold }}
-        {{- if .Values.volumesEnabled }}
-        volumeMounts:
-        {{- range .Values.volumeMounts }}
-        - name: {{ .name }}
-          mountPath: {{ .mountPath }}
-          {{- if .subPath }}
-          subPath: {{ .subPath }}
-          {{- end }}
-        {{- end }}
-        {{- end }}
-      {{- if .Values.volumesEnabled }}
-      volumes:
-      {{- range .Values.volumes }}
-      - name: {{ .name }}
-        {{- if .configMap }}
-        configMap:
-          name: {{ .configMap.name }}
-        {{- end }}
-        {{- if .persistentVolumeClaim }}
-        persistentVolumeClaim:
-          claimName: {{ .persistentVolumeClaim.claimName }}
-        {{- end }}
-      {{- end }}
-      {{- end }}
-      {{- if .Values.useInterpodAntiAffinity }}
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - {{ template "hmcts.wiremock.releaseName" . }}
-              topologyKey: kubernetes.io/hostname
-      {{- end }}
-{{- end }} 
+{{- end }}
