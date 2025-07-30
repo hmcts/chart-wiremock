@@ -74,7 +74,7 @@ jobs:
       chartName: wiremock
       chartReleaseName: chart-wiremock-ci-test
       chartNamespace: chart-tests
-      helmInstallTimeout: "500"
+      helmInstallTimeout: "200"
       
   # Debug step after validation (only if validation fails)
   - script: |
