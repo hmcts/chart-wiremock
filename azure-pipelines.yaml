@@ -24,12 +24,107 @@ jobs:
   pool:
     vmImage: ${{ variables.agentPool }}
   steps:
+  # Debug step before validation
+  - script: |
+      echo "=== PRE-VALIDATION DEBUG ==="
+      echo "Build ID: ${{ variables.Build.BuildId }}"
+      echo "Build Number: ${{ variables.Build.BuildNumber }}"
+      echo "Source Branch: ${{ variables.Build.SourceBranch }}"
+      echo "Agent OS: $(uname -a)"
+      echo "=== ENVIRONMENT VARIABLES ==="
+      env | sort
+      echo "=== HELM VERSION ==="
+      helm version
+      echo "=== KUBECTL VERSION ==="
+      kubectl version --client
+      echo "=== KUBECTL CONTEXT ==="
+      kubectl config get-contexts
+      echo "=== CURRENT DIRECTORY ==="
+      pwd
+      ls -la
+    displayName: 'Debug: Pre-validation environment check'
+    
+  # Debug step to check chart structure
+  - script: |
+      echo "=== CHART STRUCTURE ==="
+      find . -name "*.yaml" -type f | head -20
+      echo "=== VALUES.YAML CONTENT ==="
+      if [ -f "wiremock/values.yaml" ]; then
+        cat wiremock/values.yaml
+      else
+        echo "values.yaml not found"
+      fi
+      echo "=== CHART.YAML CONTENT ==="
+      if [ -f "wiremock/Chart.yaml" ]; then
+        cat wiremock/Chart.yaml
+      else
+        echo "Chart.yaml not found"
+      fi
+    displayName: 'Debug: Chart structure and content'
+    
+  # Debug step to test helm template
+  - script: |
+      echo "=== HELM TEMPLATE TEST ==="
+      helm template chart-wiremock-ci-test ./wiremock --namespace chart-tests --debug
+    displayName: 'Debug: Helm template test'
+    
+  # Original validation step
   - template: steps/charts/validate.yaml@cnp-azuredevops-libraries
     parameters:
       chartName: wiremock
       chartReleaseName: chart-wiremock-ci-test
       chartNamespace: chart-tests
       helmInstallTimeout: "500"
+      
+  # Debug step after validation (only if validation fails)
+  - script: |
+      echo "=== POST-VALIDATION DEBUG (ON FAILURE) ==="
+      echo "Validation step failed, gathering debug info..."
+      
+      echo "=== KUBECTL GET ALL ==="
+      kubectl get all -n chart-tests -o wide
+      
+      echo "=== POD EVENTS ==="
+      kubectl get events -n chart-tests --sort-by=.metadata.creationTimestamp
+      
+      echo "=== DESCRIBE PODS ==="
+      for pod in $(kubectl get pods -n chart-tests -o jsonpath='{.items[*].metadata.name}' 2>/dev/null); do
+        echo "---- Describing pod: $pod ----"
+        kubectl describe pod $pod -n chart-tests
+      done
+      
+      echo "=== HELM LIST ==="
+      helm list -n chart-tests
+      
+      echo "=== HELM STATUS ==="
+      helm status chart-wiremock-ci-test -n chart-tests
+      
+      echo "=== CLUSTER INFO ==="
+      kubectl cluster-info
+      
+      echo "=== NODE INFO ==="
+      kubectl get nodes -o wide
+    displayName: 'Debug: Post-validation failure analysis'
+    condition: failed()
+    
+  # Debug step after validation (only if validation succeeds)
+  - script: |
+      echo "=== POST-VALIDATION DEBUG (ON SUCCESS) ==="
+      echo "Validation succeeded, checking deployment status..."
+      
+      echo "=== KUBECTL GET ALL ==="
+      kubectl get all -n chart-tests -o wide
+      
+      echo "=== POD LOGS ==="
+      for pod in $(kubectl get pods -n chart-tests -o jsonpath='{.items[*].metadata.name}' 2>/dev/null); do
+        echo "---- Logs for pod: $pod ----"
+        kubectl logs $pod -n chart-tests --tail=50
+      done
+      
+      echo "=== HELM STATUS ==="
+      helm status chart-wiremock-ci-test -n chart-tests
+    displayName: 'Debug: Post-validation success analysis'
+    condition: succeeded()
 
 - job: Release
   # Make sure we have a tag to run this job
