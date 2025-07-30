@@ -60,10 +60,6 @@ spec:
           timeoutSeconds: {{ .Values.startupTimeout }}
           periodSeconds: {{ .Values.startupPeriod }}
           failureThreshold: {{ .Values.startupFailureThreshold }}
-        {{- if .Values.dnsConfig }}
-        dnsConfig:
-          {{- toYaml .Values.dnsConfig | nindent 10 }}
-        {{- end }}
         {{- if .Values.volumesEnabled }}
         volumeMounts:
         {{- range .Values.volumeMounts }}
