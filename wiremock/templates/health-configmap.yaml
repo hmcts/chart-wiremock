@@ -1,0 +1,40 @@
+{{- if not .Values.volumesEnabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "hmcts.wiremock.releaseName" . }}-health
+data:
+  health.json: |
+    {
+      "request": {
+        "method": "GET",
+        "url": "/health"
+      },
+      "response": {
+        "status": 200,
+        "body": "OK"
+      }
+    }
+  readiness.json: |
+    {
+      "request": {
+        "method": "GET",
+        "url": "/health/readiness"
+      },
+      "response": {
+        "status": 200,
+        "body": "Ready"
+      }
+    }
+  liveness.json: |
+    {
+      "request": {
+        "method": "GET",
+        "url": "/health/liveness"
+      },
+      "response": {
+        "status": 200,
+        "body": "Alive"
+      }
+    }
+{{- end }} 

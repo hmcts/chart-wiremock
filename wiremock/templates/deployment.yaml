@@ -29,6 +29,7 @@ spec:
           limits:
             memory: {{ .Values.memoryLimits }}
             cpu: {{ .Values.cpuLimits }}
+        # Use standard health endpoints with health ConfigMap
         livenessProbe:
           httpGet:
             path: {{ .Values.livenessPath }}
@@ -44,4 +45,12 @@ spec:
           initialDelaySeconds: {{ .Values.readinessDelay }}
           timeoutSeconds: {{ .Values.readinessTimeout }}
           periodSeconds: {{ .Values.readinessPeriod }}
+        volumeMounts:
+        - name: health-config
+          mountPath: /home/wiremock/mappings
+          subPath: health
+      volumes:
+      - name: health-config
+        configMap:
+          name: {{ template "hmcts.wiremock.releaseName" . }}-health
 {{- end }}
