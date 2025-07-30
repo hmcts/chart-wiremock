@@ -1,7 +1,7 @@
 aadIdentityName: someId
 
 # Enable volumes for tests
-volumesEnabled: true
+volumesEnabled: false
 
 # Basic chart configuration
 image: "wiremock/wiremock"

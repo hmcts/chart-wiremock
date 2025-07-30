@@ -5,9 +5,8 @@ replicas: 2
 useInterpodAntiAffinity: true
 ingressHost: "{{.Release.Name}}.service.core-compute-preview.internal"
 additionalIngressHosts: ["ci-01.{{.Values.global.environment}}.platform.hmcts.net"]
-configmap:
-  VAR_A: VALUE_A
-  VAR_B: VALUE_B
+volumesEnabled: false
+
 secrets:
   CONNECTION_STRING:
     secretRef: some-secret-reference
