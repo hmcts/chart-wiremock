@@ -29,10 +29,51 @@ spec:
           limits:
             memory: {{ .Values.memoryLimits }}
             cpu: {{ .Values.cpuLimits }}
-        # Use Wiremock's built-in health endpoints
+        # Create health endpoints using Wiremock admin API
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          # Start Wiremock
+          /docker-entrypoint.sh &
+          WIREMOCK_PID=$!
+          
+          # Wait for Wiremock to start
+          sleep 5
+          
+          # Create health endpoints using Wiremock admin API
+          curl -X POST http://localhost:8080/__admin/mappings/new \
+            -H "Content-Type: application/json" \
+            -d '{
+              "request": {
+                "method": "GET",
+                "url": "/health/readiness"
+              },
+              "response": {
+                "status": 200,
+                "body": "Ready"
+              }
+            }'
+          
+          curl -X POST http://localhost:8080/__admin/mappings/new \
+            -H "Content-Type: application/json" \
+            -d '{
+              "request": {
+                "method": "GET",
+                "url": "/health/liveness"
+              },
+              "response": {
+                "status": 200,
+                "body": "Alive"
+              }
+            }'
+          
+          # Wait for the Wiremock process
+          wait $WIREMOCK_PID
+        # Use standard health endpoints
         livenessProbe:
           httpGet:
-            path: /__admin/health
+            path: {{ .Values.livenessPath }}
             port: {{ .Values.applicationPort }}
           initialDelaySeconds: {{ .Values.livenessDelay }}
           timeoutSeconds: {{ .Values.livenessTimeout }}
@@ -40,7 +81,7 @@ spec:
           failureThreshold: {{ .Values.livenessFailureThreshold }}
         readinessProbe:
           httpGet:
-            path: /__admin/health
+            path: {{ .Values.readinessPath }}
             port: {{ .Values.applicationPort }}
           initialDelaySeconds: {{ .Values.readinessDelay }}
           timeoutSeconds: {{ .Values.readinessTimeout }}
