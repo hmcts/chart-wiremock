@@ -1,10 +1,9 @@
 aadIdentityName: someId
 
 # Enable volumes for tests
-volumesEnabled: false
+volumesEnabled: true
 
 # Basic chart configuration
-image: "wiremock/wiremock"
 applicationPort: 8080
 imagePullPolicy: IfNotPresent
 releaseNameOverride: chart-wiremock
