@@ -29,10 +29,10 @@ spec:
           limits:
             memory: {{ .Values.memoryLimits }}
             cpu: {{ .Values.cpuLimits }}
-        # Use standard health endpoints with health ConfigMap
+        # Use Wiremock's built-in health endpoints
         livenessProbe:
           httpGet:
-            path: {{ .Values.livenessPath }}
+            path: /__admin/health
             port: {{ .Values.applicationPort }}
           initialDelaySeconds: {{ .Values.livenessDelay }}
           timeoutSeconds: {{ .Values.livenessTimeout }}
@@ -40,17 +40,9 @@ spec:
           failureThreshold: {{ .Values.livenessFailureThreshold }}
         readinessProbe:
           httpGet:
-            path: {{ .Values.readinessPath }}
+            path: /__admin/health
             port: {{ .Values.applicationPort }}
           initialDelaySeconds: {{ .Values.readinessDelay }}
           timeoutSeconds: {{ .Values.readinessTimeout }}
           periodSeconds: {{ .Values.readinessPeriod }}
-        volumeMounts:
-        - name: health-config
-          mountPath: /home/wiremock/mappings
-          subPath: health
-      volumes:
-      - name: health-config
-        configMap:
-          name: {{ template "hmcts.wiremock.releaseName" . }}-health
 {{- end }}
