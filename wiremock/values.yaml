@@ -1,5 +1,6 @@
 applicationPort: 8080
 imagePullPolicy: IfNotPresent
+image: "wiremock/wiremock"
 releaseNameOverride : chart-wiremock
 volumesEnabled: false
 replicas: 1
