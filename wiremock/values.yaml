@@ -100,3 +100,35 @@ autoscaling:
     enabled: true
     averageUtilization: 80
 useWorkloadIdentity: true
+
+initialMappings:
+  liveness-mock.json: |
+    {
+      "request": {
+        "method": "GET",
+        "url": "/health/liveness"
+      },
+      "response": {
+        "status": 200
+      }
+    }
+  liveness-mock-2.json: |
+    {
+      "request": {
+        "method": "GET",
+        "url": "/health"
+      },
+      "response": {
+        "status": 200
+      }
+    }
+  readiness-mock.json: |
+    {
+      "request": {
+        "method": "GET",
+        "url": "/health/readiness"
+      },
+      "response": {
+        "status": 200
+      }
+    }
