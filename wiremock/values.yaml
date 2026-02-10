@@ -102,33 +102,50 @@ autoscaling:
 useWorkloadIdentity: true
 
 initialMappings:
-  liveness-mock.json: |
+  health-mock.json: |
     {
-      "request": {
-        "method": "GET",
-        "url": "/health/liveness"
-      },
-      "response": {
-        "status": 200
-      }
-    }
-  liveness-mock-2.json: |
-    {
+      "name": "Health Check",
       "request": {
         "method": "GET",
         "url": "/health"
       },
       "response": {
-        "status": 200
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/vnd.spring-boot.actuator.v3+json",
+          "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+          "Expires": "0"
+        },
+        "body": "{\"status\":\"UP\",\"components\":{\"livenessState\":{\"status\":\"UP\"},\"ping\":{\"status\":\"UP\"},\"readinessState\":{\"status\":\"UP\"}},\"groups\":[\"liveness\",\"readiness\"]}"
+      }
+    }
+  liveness-mock.json: |
+    {
+      "name": "Health Liveness",
+      "request": {
+        "method": "GET",
+        "url": "/health/liveness"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/vnd.spring-boot.actuator.v3+json"
+        },
+        "body": "{\"status\":\"UP\"}"
       }
     }
   readiness-mock.json: |
     {
+      "name": "Health Readiness",
       "request": {
         "method": "GET",
         "url": "/health/readiness"
       },
       "response": {
-        "status": 200
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/vnd.spring-boot.actuator.v3+json"
+        },
+        "body": "{\"status\":\"UP\"}"
       }
     }
