@@ -112,9 +112,7 @@ initialMappings:
       "response": {
         "status": 200,
         "headers": {
-          "Content-Type": "application/vnd.spring-boot.actuator.v3+json",
-          "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
-          "Expires": "0"
+          "Content-Type": "application/vnd.spring-boot.actuator.v3+json"
         },
         "body": "{\"status\":\"UP\",\"components\":{\"livenessState\":{\"status\":\"UP\"},\"ping\":{\"status\":\"UP\"},\"readinessState\":{\"status\":\"UP\"}},\"groups\":[\"liveness\",\"readiness\"]}"
       }
